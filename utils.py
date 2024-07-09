@@ -137,7 +137,7 @@ def decode_data(data, std_num, mode=5):
             decode = model(data)
 
       
-    elif mode == "UNetpp" or mode == "AttUnet":
+    elif mode == "ICUNet++" or mode == "ICUNet_attn":
         # 1. read name
         if mode == "UNetpp":
             model = UNet_family.NestedUNet3(num_classes=30)
@@ -154,27 +154,8 @@ def decode_data(data, std_num, mode=5):
             data = torch.Tensor(data)
             decode1, decode2, decode = model(data)
 
-        
-    elif mode == "ResCNN" or mode == "DuoCL" or mode == "GCTNet":
-        # 1. read name
-        opts = get_opts()
-        opts.denoise_network = mode
-        model = pick_models(opts, data_num=512)
-        #data = data + np.random.rand(30, 1024)*11.0
-        resumeLoc = './model/Hybrid/' + mode + '/' + mode + '_Hybrid_200_0_0.05_0.05/best_' + mode + '.pth'
-        # 2. load model
-        model = torch.load(resumeLoc, map_location='cpu')
-        model.eval()
-        # 3. decode strategy
-        with torch.no_grad():
-            data = torch.FloatTensor(data)
-            noisy1, noisy2 = torch.split(data, 512, dim=1)
-            decode1 = model(noisy1.unsqueeze(1))
-            decode2 = model(noisy2.unsqueeze(1))
-            decode = torch.cat((decode1, decode2), dim=1)
-            decode = decode.unsqueeze(0)
 
-    elif mode == "EEGART":
+    elif mode == "ART":
         # 1. read name
         resumeLoc = './model/' + mode + '/modelsave/checkpoint.pth.tar'
         # 2. load model
