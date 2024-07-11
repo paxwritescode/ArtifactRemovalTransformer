@@ -18,10 +18,10 @@ This repository is the official implementation of EEG Artifact Removal
 git clone https://github.com/CNElab-Plus/ArtifactRemovalTransformer.git
 ```
 
-2. Download **checkpoints**: you need to download the 'ART', 'ICUNet', 'ICUNet_attn', 'ICUNet++', respectivily. Then move these folder to under the model folder.
+2. Download **checkpoints**: you need to download the 'ART', 'ICUNet', 'ICUNet_attn', 'ICUNet++', respectivily. Then move these folder to under the `./model` folder.
 [Google drive link](https://drive.google.com/drive/folders/1ahbqcyBs6pwfWHaIf_N978DZD-JmGQJg?usp=sharing)
 
-3. Create a conda environment and install the required packages (tested with Python 3.12.4 on Windows):
+3. Create a virtual environment and install the required packages (tested with Python 3.12.4 on Windows):
 
 ```sh
 python -m venv ART
@@ -33,7 +33,7 @@ pip install scipy
 > we don't need `requirements.txt`
 
 ## Inference
-1. check parameters in `main.py`
+1. Check parameters in `main.py`
 ```sh
 input_path = './sampledata/'
 input_name = 'sampledata.csv'
@@ -59,8 +59,10 @@ python .\main.py
 When training, we use 30 channels, so we need to adjust data with fewer or more than 30 channels to exactly 30 channels.
 
 1. You need to refer to the original channel location to create the corresponding array. The original channel location is as follows:
+![plot](./30_channel_example.png)
 
 2. Refer to the original channel location to create the corresponding array. For example, using the [PhysioNet Motor Movement/Imagery Dataset](https://www.physionet.org/content/eegmmidb/1.0.0/), align the corresponding channels as needed. 
+![plot](./64_channel_sharbrough.png)
 
 ```
 old_idx = [ 22,  24, 30, 32, 34, 36, 38,  39,   2,   4,   6,  40, 41,  9, 11, 13, 42,  45,  16,  18,  20,  46, 47, 49, 51, 53, 55, 61, 62, 63]
@@ -82,7 +84,7 @@ python .\channel_mapping.py
 1. For batch processing, wrap the executed code in a for loop.
 
 2. Example for `channel_mapping.py`:
-```
+```python
 for idx in range(num_data):
 	# Wrap the name in a for loop
 	input_name = 'raw_{:03d}.csv'.format(idx)
@@ -101,7 +103,7 @@ for idx in range(num_data):
 ```
 
 3. Example for `main.py`:
-```
+```python
 for idx in range(num_data):
 	# Wrap the name in a for loop
 	input_name  = 'mapped_{:03d}.csv'.format(idx)
