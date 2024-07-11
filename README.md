@@ -86,8 +86,8 @@ python .\channel_mapping.py
 2. Example for `channel_mapping.py`:
 ```python
 for idx in range(num_data):
-	# Wrap the name in a for loop
-	input_name = 'raw_{:03d}.csv'.format(idx)
+    # Wrap the name in a for loop
+    input_name = 'raw_{:03d}.csv'.format(idx)
     output_name = 'mapped_{:03d}.csv'.format(idx)
 
 	# read input data
@@ -107,7 +107,7 @@ for idx in range(num_data):
 for idx in range(num_data):
 	# Wrap the name in a for loop
 	input_name  = 'mapped_{:03d}.csv'.format(idx)
-	output_name = 'reconstruct_{:03d}.csv'.format(idx)
+    output_name = 'reconstruct_{:03d}.csv'.format(idx)
 
 	# step1: Data preprocessing
     preprocess_data = utils.preprocessing(input_path+input_name, sample_rate)
