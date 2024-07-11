@@ -1,14 +1,12 @@
 # Artifact Removal Transformer (ART)
-This repository is the official implementation of EEG Artifact Removal
+This study introduces the Artifact Removal Transformer (ART), a novel EEG denoising model that employs transformer architecture to effectively handle multichannel EEG data. ART is specifically designed to capture the millisecond-scale transient dynamics inherent in EEG, providing a comprehensive, end-to-end solution for denoising various types of artifacts. This advancement builds on our previous enhancement of the IC-U-Net model, which now includes positional encoding and self-attention mechanisms to significantly improve signal reconstruction capabilities. To train these models, we refined the generation of noisy-clean EEG data pairs using an independent component analysis approach, creating robust training scenarios essential for supervised learning.
 
 🤗 [Artifact Removal Transformer](https://huggingface.co/spaces/CNElab/ArtifactRemovalTransformer)
 
-(include Channel Mapping!!!)
 
 > **ART: An Artifact Removal Transformer for Reconstructing Noise-Free Multi-Channel EEG Signals** [[arXiv paper](#)]<br>
-> Chun-Hsiang Chuang, Kong-Yi Chang, Chih-Sheng Huang, Anne-Mei Bessasa, 
+> Chun-Hsiang Chuang, Kong-Yi Chang, Chih-Sheng Huang, Anne-Mei Bessasa<br>
 > [CNElab](https://sites.google.com/view/chchuang/)<br>
-> Artifact removal in electroencephalography (EEG) is a longstanding challenge that significantly impacts neuroscientific analysis and brain-computer interface (BCI) performance. Addressing this issue requires sophisticated algorithms, accurately paired noisy-clean training data, and rigorous evaluation methods. This study introduces the Artifact Removal Transformer (ART), a novel EEG denoising model that employs transformer architecture to effectively handle multichannel EEG data. ART is specifically designed to capture the millisecond-scale transient dynamics inherent in EEG, providing a comprehensive, end-to-end solution for denoising various types of artifacts. This advancement builds on our previous enhancement of the IC-U-Net model, which now includes positional encoding and self-attention mechanisms to significantly improve signal reconstruction capabilities. To train these models, we refined the generation of noisy-clean EEG data pairs using an independent component analysis approach, creating robust training scenarios essential for supervised learning. Extensive validation across a broad spectrum of open datasets from diverse BCI applications used metrics such as mean square error and signal-to-noise ratio, alongside advanced techniques like source localization and EEG component classification. Our evaluations consistently show that ART outperforms other deep-learning-based artifact removal techniques, establishing a new standard in EEG signal processing. This breakthrough enhances the accuracy and reliability of artifact removal methods, promising to drive further innovations in the field and enabling the study of brain dynamics in naturalistic settings.
 
 # Basic Usage (For Users Familiar with the Process)
 
