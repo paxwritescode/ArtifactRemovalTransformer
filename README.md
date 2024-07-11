@@ -90,14 +90,14 @@ for idx in range(num_data):
     input_name = 'raw_{:03d}.csv'.format(idx)
     output_name = 'mapped_{:03d}.csv'.format(idx)
 
-	# read input data
+    # read input data
     old_data = read_train_data(input_path+input_name)
     new_data = np.zeros((30, old_data.shape[1]))
-	
+
 	# ** key step ** Channel Mapping
     for j in range(30):
         new_data[j, :] = old_data[old_idx[j]-1, :]
-	
+    
 	# save the data
     save_data(new_data, output_path+output_name)
 ```
@@ -105,13 +105,13 @@ for idx in range(num_data):
 3. Example for `main.py`:
 ```python
 for idx in range(num_data):
-	# Wrap the name in a for loop
-	input_name  = 'mapped_{:03d}.csv'.format(idx)
+    # Wrap the name in a for loop
+    input_name  = 'mapped_{:03d}.csv'.format(idx)
     output_name = 'reconstruct_{:03d}.csv'.format(idx)
 
-	# step1: Data preprocessing
+    # step1: Data preprocessing
     preprocess_data = utils.preprocessing(input_path+input_name, sample_rate)
-
+    
     # step2: Signal reconstruction
     utils.reconstruct(modelname, preprocess_data, output_path+output_name)
 ```
