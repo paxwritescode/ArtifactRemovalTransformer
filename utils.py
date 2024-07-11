@@ -5,8 +5,8 @@ from model import UNet_family
 from model import UNet_attention
 from model import tf_model
 from model import tf_data
-from opts import get_opts
-from tools import pick_models
+#from opts import get_opts
+#from tools import pick_models
 
 import time
 import torch
@@ -139,9 +139,9 @@ def decode_data(data, std_num, mode=5):
       
     elif mode == "ICUNet++" or mode == "ICUNet_attn":
         # 1. read name
-        if mode == "UNetpp":
+        if mode == "ICUNet++":
             model = UNet_family.NestedUNet3(num_classes=30)
-        elif mode == "AttUnet":
+        elif mode == "ICUNet_attn":
             model = UNet_attention.UNetpp3_Transformer(num_classes=30)
         resumeLoc = './model/'+ mode + '/modelsave' + '/checkpoint.pth.tar'
         # 2. load model

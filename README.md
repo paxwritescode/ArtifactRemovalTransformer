@@ -1,47 +1,119 @@
-# ArtifactRemovalTransformer (ART)
+# Artifact Removal Transformer (ART)
+This repository is the official implementation of EEG Artifact Removal
 
-# Quickstart
+🤗 [Artifact Removal Transformer](https://huggingface.co/spaces/CNElab/ArtifactRemovalTransformer)
 
-## 1. Channel mapping
+(include Channel Mapping!!!)
 
-### Raw data
-1. The data need to be a two-dimensional array (channel, timepoint).
-2. Make sure you have **resampled** your data to **256 Hz**.
-3. Upload your EEG data in `.csv` format.
+> **ART: An Artifact Removal Transformer for Reconstructing Noise-Free Multi-Channel EEG Signals** [[arXiv paper](#)]<br>
+> Chun-Hsiang Chuang, Kong-Yi Chang, Chih-Sheng Huang, Anne-Mei Bessasa<br>
+> [CNElab](https://sites.google.com/view/chchuang/)
 
-### Channel locations
-Upload your data's channel locations in `.loc` format, which can be obtained using **EEGLAB**.  
->If you cannot obtain it, we recommend you to download the standard montage <a href="">here</a>. If the channels in those files doesn't match yours, you can use **EEGLAB** to modify them to your needed montage.
+# Basic Usage (For Users Familiar with the Process)
 
-### Imputation
-The models was trained using the EEG signals of 30 channels, including: `Fp1, Fp2, F7, F3, Fz, F4, F8, FT7, FC3, FCz, FC4, FT8, T7, C3, Cz, C4, T8, TP7, CP3, CPz, CP4, TP8, P7, P3, Pz, P4, P8, O1, Oz, O2`.
-We expect your input data to include these channels as well.  
-If your data doesn't contain all of the mentioned channels, there are 3 imputation ways you can choose from:
+## Installation
+1. Clone the repository
 
-<u>Manually</u>:  
-- **mean**: select the channels you wish to use for imputing the required one, and we will average their values. If you select nothing, zeros will be imputed. For example, you didn't have **FCZ** and you choose **FC1, FC2, FZ, CZ** to impute it(depending on the channels you have), we will compute the mean of these 4 channels and assign this new value to **FCZ**.
+```sh
+git clone https://github.com/CNElab-Plus/ArtifactRemovalTransformer.git
+```
 
-<u>Automatically</u>:  
-Firstly, we will attempt to find neighboring channel to use as alternative. For instance, if the required channel is **FC3** but you only have **FC1**, we will use it as a replacement for **FC3**.  
-Then, depending on the **Imputation** way you chose, we will:
-- **zero**: fill the missing channels with zeros.
-- **adjacent**: fill the missing channels using neighboring channels which are located closer to the center. For example, if the required channel is **FC3** but you only have **F3, C3**, then we will choose **C3** as the imputing value for **FC3**.
->Note: The imputed channels **need to be removed** after the data being reconstructed.
+2. Download **checkpoints**: you need to download the 'ART', 'ICUNet', 'ICUNet_attn', 'ICUNet++', respectivily. Then move these folder to under the model folder.
+[Google drive link](https://drive.google.com/drive/folders/1ahbqcyBs6pwfWHaIf_N978DZD-JmGQJg?usp=sharing)
 
-### Mapping result
-Once the mapping process is finished, the **template montage** and the **input montage**(with the channels choosen by the mapping function displaying their names) will be shown.
+3. Create a conda environment and install the required packages (tested with Python 3.12.4 on Windows):
 
-### Missing channels
-The channels displayed here are those for which the template didn't find suitable channels to use, and utilized **Imputation** to fill the missing values.  
-Therefore, you need to
-<span style="color:red">**remove these channels**</span>
-after you download the denoised data.
+```sh
+python -m venv ART
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+ART\Scripts\Activate.ps1
+pip install torch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 --index-url https://download.pytorch.org/whl/cpu
+pip install scipy
+```
+> we don't need `requirements.txt`
 
-### Template location file
-You need to use this as the **new location file** for the denoised data.
+## Inference
+1. check parameters in `main.py`
+```sh
+input_path = './sampledata/'
+input_name = 'sampledata.csv'
+sample_rate = 256 # input data sample rate
+modelname = 'ART' # or 'ICUNet', 'ICUNet++', 'ICUNet_attn', 'ART'
+output_path = './sampledata/'
+output_name = 'outputsample.csv'
+```
+2. Run the code
+```sh
+python .\main.py
+```
 
-## 2. Decode data
+# Advanced Usage (Customized Data)
 
-### Model
-Select the model you want to use.  
-The detailed description of the models can be found in other pages.
+## Introduce our sample data
+1. The data needs to be a two-dimensional array (channel, timepoint) with exactly **30 channels**.
+2. Your EEG data must be convert in `.csv` format.
+3. Output data must be **resampled** to **256 Hz**
+4. We provide the sample channel location in `template_chanlocs.loc` format, which can be obtained using [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php)
+
+## Channel Mapping
+When training, we use 30 channels, so we need to adjust data with fewer or more than 30 channels to exactly 30 channels.
+
+1. You need to refer to the original channel location to create the corresponding array. The original channel location is as follows:
+
+2. Refer to the original channel location to create the corresponding array. For example, using the [PhysioNet Motor Movement/Imagery Dataset](https://www.physionet.org/content/eegmmidb/1.0.0/), align the corresponding channels as needed. 
+
+```
+old_idx = [ 22,  24, 30, 32, 34, 36, 38,  39,   2,   4,   6,  40, 41,  9, 11, 13, 42,  45,  16,  18,  20,  46, 47, 49, 51, 53, 55, 61, 62, 63]
+```
+3. Modify parameters in `channel_mapping.py`
+```python
+input_path = './sampledata/'
+output_path = './sampledata/'
+input_name = 'sampledata.csv'
+output_name = 'outputsample.csv'
+```
+
+4. Run the code
+```sh
+python .\channel_mapping.py
+```
+
+## Batch processing
+1. For batch processing, wrap the executed code in a for loop.
+
+2. Example for `channel_mapping.py`:
+```
+for idx in range(num_data):
+	# Wrap the name in a for loop
+	input_name = 'raw_{:03d}.csv'.format(idx)
+    output_name = 'mapped_{:03d}.csv'.format(idx)
+
+	# read input data
+    old_data = read_train_data(input_path+input_name)
+    new_data = np.zeros((30, old_data.shape[1]))
+	
+	# ** key step ** Channel Mapping
+    for j in range(30):
+        new_data[j, :] = old_data[old_idx[j]-1, :]
+	
+	# save the data
+    save_data(new_data, output_path+output_name)
+```
+
+3. Example for `main.py`:
+```
+for idx in range(num_data):
+	# Wrap the name in a for loop
+	input_name  = 'mapped_{:03d}.csv'.format(idx)
+	output_name = 'reconstruct_{:03d}.csv'.format(idx)
+
+	# step1: Data preprocessing
+    preprocess_data = utils.preprocessing(input_path+input_name, sample_rate)
+
+    # step2: Signal reconstruction
+    utils.reconstruct(modelname, preprocess_data, output_path+output_name)
+```
+
+# Citation
+[1] C.-H. Chuang, K.-Y. Chang, C.-S. Huang, and T.-P. Jung, "[IC-U-Net: A U-Net-based denoising autoencoder using mixtures of independent components for automatic EEG artifact removal](https://www.sciencedirect.com/science/article/pii/S1053811922007017)," NeuroImage, vol. 263, p. 119586, 2022/11/01/ 2022
+[2]  K. Y. Chang, Y. C. Huang, and C. H. Chuang, "[Enhancing EEG Artifact Removal Efficiency by Introducing Dense Skip Connections to IC-U-Net](https://ieeexplore.ieee.org/document/10340520)," in 2023 45th Annual International Conference of the IEEE Engineering in Medicine & Biology Society (EMBC), 24-27 July 2023 2023, pp. 1-4
