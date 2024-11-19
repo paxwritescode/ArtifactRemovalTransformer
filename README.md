@@ -4,13 +4,11 @@ This study introduces the Artifact Removal Transformer (ART), a novel EEG denois
 🤗 [Artifact Removal Transformer](https://huggingface.co/spaces/CNElab/ArtifactRemovalTransformer)
 
 
-> **ART: An Artifact Removal Transformer for Reconstructing Noise-Free Multi-Channel EEG Signals** [[arXiv paper](#)]<br>
-> Chun-Hsiang Chuang, Kong-Yi Chang, Chih-Sheng Huang, Anne-Mei Bessasa<br>
+> **ART: An Artifact Removal Transformer for Reconstructing Noise-Free Multi-Channel EEG Signals** [[arXiv paper](https://arxiv.org/abs/2409.07326)]<br>
+> Chun-Hsiang Chuang, Kong-Yi Chang, Chih-Sheng Huang, Anne-Mei Bessas<br>
 > [CNElab](https://sites.google.com/view/chchuang/)<br>
 
-# Basic Usage (For Users Familiar with the Process)
-
-## Installation
+# Installation
 1. Clone the repository
 
 ```sh
@@ -31,6 +29,32 @@ pip install scipy
 ```
 > we don't need `requirements.txt`
 
+# Usage Guide
+
+## Data Specification
+- Your data must be a two-dimensional array (channels, timepoints) and should be converted into `.csv` format.
+- All reference, ECG, EOG, EMG, or other non-EEG channels must be removed from both your data and channel location file.
+
+## Channel Mapping
+1. Go to our [Hugging Face space](https://huggingface.co/spaces/CNElab/ArtifactRemovalTransformer) and complete the process of **Step1. Channel Mapping**.
+    ![plot](./image/HF.png)<br>
+    (For detailed instructions, please refer to the user guide.)
+    <details>
+    <summary>Example</summary>
+
+    ![plot](./image/HF_step1-1.png)<br>
+    ![plot](./image/HF_step1-2.png)<br>
+    ![plot](./image/HF_step1-3.png)<br>
+    ![plot](./image/HF_step1-4.png)<br>
+    </details>
+
+2. After finishing the process, download the generated `XXX_mapping_result.json` file.
+
+3. Modify the mapping file name in `main.py`
+```python
+mapping_name = './sampledata/sample_chanlocs_mapping_result.json'
+```
+
 ## Inference
 1. Check parameters in `main.py`
 ```sh
@@ -46,73 +70,24 @@ output_name = 'outputsample.csv'
 python .\main.py
 ```
 
-# Advanced Usage (Customized Data)
-
-## Introduce our sample data
-1. The data needs to be a two-dimensional array (channel, timepoint) with exactly **30 channels**.
-2. Your EEG data must be convert in `.csv` format.
-3. Output data must be **resampled** to **256 Hz**
-4. We provide the sample channel location in `template_chanlocs.loc` format, which can be obtained using [EEGLAB](https://sccn.ucsd.edu/eeglab/download.php)
-
-## Channel Mapping
-When training, we use 30 channels, so we need to adjust data with fewer or more than 30 channels to exactly 30 channels.
-
-1. You need to refer to the original channel location to create the corresponding array. The original channel location is as follows:
-![plot](./30_channel_example.png)
-
-2. Refer to the original channel location to create the corresponding array. For example, using the [PhysioNet Motor Movement/Imagery Dataset](https://www.physionet.org/content/eegmmidb/1.0.0/), align the corresponding channels as needed. 
-![plot](./64_channel_sharbrough.png)
-
-```
-old_idx = [ 22,  24, 30, 32, 34, 36, 38,  39,   2,   4,   6,  40, 41,  9, 11, 13, 42,  45,  16,  18,  20,  46, 47, 49, 51, 53, 55, 61, 62, 63]
-```
-3. Modify parameters in `channel_mapping.py`
-```python
-input_path = './sampledata/'
-output_path = './sampledata/'
-input_name = 'sampledata.csv'
-output_name = 'outputsample.csv'
-```
-
-4. Run the code
-```sh
-python .\channel_mapping.py
-```
-
-## Batch processing
-1. For batch processing, wrap the executed code in a for loop.
-
-2. Example for `channel_mapping.py`:
+### Batch processing
+For batch processing, wrap the code in `main.py` in a for loop.<br>
+Here is an example:
 ```python
 for idx in range(num_data):
     # Wrap the name in a for loop
-    input_name = 'raw_{:03d}.csv'.format(idx)
-    output_name = 'mapped_{:03d}.csv'.format(idx)
-
-    # read input data
-    old_data = read_train_data(input_path+input_name)
-    new_data = np.zeros((30, old_data.shape[1]))
-
-	# ** key step ** Channel Mapping
-    for j in range(30):
-        new_data[j, :] = old_data[old_idx[j]-1, :]
-    
-	# save the data
-    save_data(new_data, output_path+output_name)
-```
-
-3. Example for `main.py`:
-```python
-for idx in range(num_data):
-    # Wrap the name in a for loop
-    input_name  = 'mapped_{:03d}.csv'.format(idx)
+    input_name  = 'raw_{:03d}.csv'.format(idx)
     output_name = 'reconstruct_{:03d}.csv'.format(idx)
 
-    # step1: Data preprocessing
-    preprocess_data = utils.preprocessing(input_path+input_name, sample_rate)
+    for i in range(num_group):
 
-    # step2: Signal reconstruction
-    utils.reconstruct(modelname, preprocess_data, output_path+output_name)
+        # step1: Data preprocessing
+        preprocess_data = utils.preprocessing(input_path+input_name, sample_rate, mapping_result[i])
+        # step2: Signal reconstruction
+        reconstruct_data = utils.reconstruct(modelname, preprocess_data, output_name, i)
+        # step3: Data postprocessing
+        utils.postprocessing(reconstruct_data, sample_rate, output_path+output_name, mapping_result[i], i, num_channel)
+
 ```
 
 # Citation
