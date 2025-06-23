@@ -67,7 +67,7 @@ output_name = 'outputsample.csv'
 ```
 2. Run the code
 ```sh
-python .\main.py
+python main.py
 ```
 
 ### Batch processing
